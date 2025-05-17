@@ -1,27 +1,9 @@
 /* Sanitize.css Integration */
-*,
-::before,
-::after {
-  background-repeat: no-repeat;
-  box-sizing: border-box;
-}
-::before,
-::after {
-  text-decoration: inherit;
-  vertical-align: inherit;
-}
-html {
-  cursor: default;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.15;
-  -moz-tab-size: 4;
-  tab-size: 4;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  word-break: break-word;
-}
+html,
 body {
-  margin: 0;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 h1 {
   font-size: 2em;
@@ -339,7 +321,7 @@ body {
 }
 .section-title-box {
   max-width: 300px;
-  margin: 40px auto 20px;
+  margin: 10px auto 5px;
   padding: 10px 20px;
   background-color: #050A30;
   border-radius: 10px;
@@ -383,7 +365,7 @@ body {
   transform: scale(1.1);
   cursor: pointer;
 }
-.about-section {
+/* .about-section {
   margin-top: 40px;
   width: 80%;
   margin-left: 40px;
@@ -391,14 +373,31 @@ body {
   padding: 20px;
   background-color: transparent;
 }
+.container_about {
+    display: flex;
+    padding: 20px;
+    justify-content: center;
+} */
+.container_about {
+    max-width: 1200px;
+    margin: 0 auto;
+    /* Center horizontally */
+    padding: 40px 20px;
+    /* More top/bottom padding for balance */
+    display: flex;
+    justify-content: center;
+    /* Center content horizontally inside */
+}
+
+.about-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0;
+    /* Space above and below */
+}
 .education-section {
   padding: 60px 0;
-}
-.container_about {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  justify-content: center;
 }
 .projects-section {
   padding: 20px;
@@ -406,6 +405,10 @@ body {
   justify-content: center;
   align-items: center;
 }
+.section-box.projects-section {
+    margin-bottom: 40px !important;
+}
+  
 .blockquote-footer {
   color: aquamarine;
   font-style: italic;
@@ -437,9 +440,9 @@ body {
   .resumeimg {
     width: 100%;
   }
-  .section-title-box {
+  /* .section-title-box {
     max-width: 250px;
-  }
+  } */
   .section-title {
     font-size: 20px;
   }
@@ -464,9 +467,9 @@ body {
   .link-icons-1 {
     font-size: 30px;
   }
-  .section-title-box {
+  /* .section-title-box {
     max-width: 200px;
-  }
+  } */
   .section-title {
     font-size: 18px;
   }
