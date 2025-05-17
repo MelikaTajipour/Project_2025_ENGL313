@@ -19,13 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const slider = projectsSection.querySelector('[data-slider-id="projects-slider"]');
     const slides = projectsSection.querySelectorAll('.slide');
     const indicators = projectsSection.querySelectorAll('.indicator');
     const prevBtn = projectsSection.querySelector('#prevBtn');
     const nextBtn = projectsSection.querySelector('#nextBtn');
 
-    if (!slides.length || !prevBtn || !nextBtn || !indicators.length) {
+    if (!slider || !slides.length || !prevBtn || !nextBtn || !indicators.length) {
         console.error("Slider elements missing:", {
+            slider: !!slider,
             slides: slides.length,
             prevBtn: !!prevBtn,
             nextBtn: !!nextBtn,
@@ -36,56 +38,108 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log(`Found ${slides.length} slides, prev/next buttons, and ${indicators.length} indicators`);
 
+    // Check image loading
+    slides.forEach((slide, index) => {
+        const img = slide.querySelector('img');
+        if (img.complete) {
+            img.setAttribute('data-img-loaded', 'true');
+            console.log(`Image ${index} loaded: ${img.src}`);
+        } else {
+            img.addEventListener('load', () => {
+                img.setAttribute('data-img-loaded', 'true');
+                console.log(`Image ${index} loaded: ${img.src}`);
+            });
+            img.addEventListener('error', () => {
+                console.error(`Failed to load image ${index}: ${img.src}`);
+            });
+        }
+    });
+
     let currentSlide = 0;
-    let autoSlideInterval;
+    let autoSlideInterval = null;
+    let isSliding = false;
+    let lastTransitionTime = 0;
+
+    // Debounce function to limit rapid interactions
+    const debounce = (func, wait) => {
+        return (...args) => {
+            const now = Date.now();
+            if (now - lastTransitionTime < wait) {
+                console.log(`Debounced interaction, too soon since last transition`);
+                return;
+            }
+            lastTransitionTime = now;
+            func(...args);
+        };
+    };
 
     const showSlide = (index) => {
-        slides.forEach((slide, i) => {
-            slide.classList.remove('active-slide');
-            indicators[i].classList.remove('active');
-            if (i === index) {
-                slide.classList.add('active-slide');
-                indicators[i].classList.add('active');
-            }
+        if (isSliding) {
+            console.log(`Slide transition in progress, ignoring index ${index}`);
+            return;
+        }
+        if (index < 0 || index >= slides.length) {
+            console.warn(`Invalid slide index: ${index}`);
+            return;
+        }
+        isSliding = true;
+        console.log(`Starting transition to slide ${index} at ${new Date().toISOString()}`);
+        currentSlide = index;
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        indicators.forEach((indicator, i) => {
+            indicator.classList.toggle('active', i === currentSlide);
         });
-        console.log(`Showing slide ${index}`);
+        setTimeout(() => {
+            isSliding = false;
+        }, 1500); // instead of 2000
+        
     };
 
     const nextSlide = () => {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
+        showSlide((currentSlide + 1) % slides.length);
     };
 
     const prevSlide = () => {
-        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-        showSlide(currentSlide);
+        showSlide((currentSlide - 1 + slides.length) % slides.length);
     };
 
+    // Debounced event handlers
+    const debouncedPrevSlide = debounce(prevSlide, 2000);
+    const debouncedNextSlide = debounce(nextSlide, 2000);
+    const debouncedShowSlide = debounce(showSlide, 2000);
+
     prevBtn.addEventListener('click', () => {
-        prevSlide();
+        debouncedPrevSlide();
         resetAutoSlide();
     });
 
     nextBtn.addEventListener('click', () => {
-        nextSlide();
+        debouncedNextSlide();
         resetAutoSlide();
     });
 
     indicators.forEach(indicator => {
         indicator.addEventListener('click', () => {
-            currentSlide = parseInt(indicator.getAttribute('data-slide'));
-            showSlide(currentSlide);
+            const index = parseInt(indicator.getAttribute('data-slide'));
+            debouncedShowSlide(index);
             resetAutoSlide();
         });
     });
 
     const startAutoSlide = () => {
-        autoSlideInterval = setInterval(nextSlide, 5000);
-        console.log("Auto-slide started");
+        if (autoSlideInterval !== null) {
+            console.log(`Clearing existing interval ${autoSlideInterval}`);
+            clearInterval(autoSlideInterval);
+        }
+        autoSlideInterval = setInterval(() => {
+            console.log(`Auto-slide triggered at ${new Date().toISOString()}`);
+            nextSlide();
+        }, 10000);
+        console.log(`Auto-slide started with ID ${autoSlideInterval} and 10s interval`);
     };
 
     const resetAutoSlide = () => {
-        clearInterval(autoSlideInterval);
+        console.log(`Resetting auto-slide at ${new Date().toISOString()}`);
         startAutoSlide();
     };
 
